@@ -13,25 +13,11 @@ spec:
       labels:
         app: cbs-csi-node
     spec:
-      spec:
-        affinity:
-          nodeAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
-              nodeSelectorTerms:
-              - matchExpressions:
-                - key: beta.kubernetes.io/instance-type
-                  operator: NotIn
-                  values:
-                  - CHC
       serviceAccount: cbs-csi-node-sa
       hostNetwork: true
       hostPID: true
       dnsPolicy: ClusterFirstWithHostNet
       priorityClassName: system-node-critical
-      hostAliases:
-        - ip: "169.254.0.23"
-          hostnames:
-            - "metadata.tencentyun.com"
       containers:
         - name: driver-registrar
           image: ccr.ccs.tencentyun.com/k8scsi/csi-node-driver-registrar:v2.0.1
@@ -66,19 +52,19 @@ spec:
             allowPrivilegeEscalation: true
           image: ccr.ccs.tencentyun.com/k8scsi/csi-tencentcloud-cbs:v2.0.0
           command:
-            - "/csi-tencentcloud-cbs"
+            - "/csi-cbs"
           args:
             - "--v=5"
             - "--logtostderr=true"
             - "--endpoint=unix:///csi/csi.sock"
           env:
-            - name: TENCENTCLOUD_API_SECRET_ID
+            - name: STORAGE_API_SECRET_ID
               valueFrom:
                 secretKeyRef:
                   name: cbs-csi-api-key
                   key: STORAGE_API_SECRET_ID
                   optional: true
-            - name: TENCENTCLOUD_API_SECRET_KEY
+            - name: STORAGE_API_SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   name: cbs-csi-api-key

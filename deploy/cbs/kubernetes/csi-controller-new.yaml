@@ -16,10 +16,6 @@ spec:
     spec:
       serviceAccountName: cbs-csi-controller-sa
       priorityClassName: system-node-critical
-      hostAliases:
-        - ip: "169.254.0.23"
-          hostnames:
-            - "metadata.tencentyun.com"
       containers:
         - name: csi-provisioner
           image: ccr.ccs.tencentyun.com/k8scsi/csi-provisioner:v2.0.4
@@ -40,7 +36,7 @@ spec:
               name: socket-dir
           resources:
             limits:
-              cpu: 1
+              cpu: "1"
               memory: 1Gi
             requests:
               cpu: 100m
@@ -61,40 +57,7 @@ spec:
               name: socket-dir
           resources:
             limits:
-              cpu: 1
-              memory: 1Gi
-            requests:
-              cpu: 100m
-              memory: 50Mi
-        - name: csi-snapshotter
-          image: ccr.ccs.tencentyun.com/k8scsi/csi-snapshotter:v3.0.2
-          imagePullPolicy: "Always"
-          args:
-            - "--csi-address=$(ADDRESS)"
-            - "--leader-election=true"
-            - "--v=5"
-          env:
-            - name: ADDRESS
-              value: /csi/csi.sock
-          volumeMounts:
-            - name: socket-dir
-              mountPath: /csi
-          resources:
-            limits:
-              cpu: 1
-              memory: 1Gi
-            requests:
-              cpu: 100m
-              memory: 50Mi
-        - name: snapshot-controller
-          image: ccr.ccs.tencentyun.com/k8scsi/snapshot-controller:v3.0.2
-          imagePullPolicy: "Always"
-          args:
-            - "--v=5"
-            - "--leader-election=true"
-          resources:
-            limits:
-              cpu: 1
+              cpu: "1"
               memory: 1Gi
             requests:
               cpu: 100m
@@ -114,16 +77,16 @@ spec:
               mountPath: /csi
           resources:
             limits:
-              cpu: 1
+              cpu: "1"
               memory: 1Gi
             requests:
               cpu: 100m
               memory: 50Mi
         - name: cbs-csi
-          image: ccr.ccs.tencentyun.com/k8scsi/csi-tencentcloud-cbs:v2.0.0
+          image: harbor.enmotech.com/k8scsi/csi-cbs:v1.0.0
           imagePullPolicy: "Always"
           command:
-            - "/csi-tencentcloud-cbs"
+            - "/csi-cbs"
           args:
             - "--v=5"
             - "--logtostderr=true"
@@ -131,13 +94,13 @@ spec:
           env:
             - name: ADDRESS
               value: unix:///csi/csi.sock
-            - name: TENCENTCLOUD_API_SECRET_ID
+            - name: STORAGE_API_SECRET_ID
               valueFrom:
                 secretKeyRef:
                   name: cbs-csi-api-key
                   key: STORAGE_API_SECRET_ID
                   optional: true
-            - name: TENCENTCLOUD_API_SECRET_KEY
+            - name: STORAGE_API_SECRET_KEY
               valueFrom:
                 secretKeyRef:
                   name: cbs-csi-api-key
@@ -155,7 +118,7 @@ spec:
               name: socket-dir
           resources:
             limits:
-              cpu: 1
+              cpu: "1"
               memory: 1Gi
             requests:
               cpu: 100m
